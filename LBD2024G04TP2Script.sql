@@ -204,14 +204,14 @@ ORDER BY
 LIMIT 10;
 
 -- 1. Variables de entrada:
--- Definimos variables @fechaInicio y @fechaFin para hacer la consulta más dinámica y reutilizable para cualquier rango de fechas.
+-- Definimos variables @fechaInicio y @fechaFin.
 
 -- 2. FROM y JOIN:
 -- FROM Pedidos: Comenzamos desde Pedidos porque queremos listar los pedidos realizados por los clientes en un rango de fechas.
 -- INNER JOIN Clientes: Unimos Pedidos con Clientes usando idCliente para obtener la información del cliente. Utilizamos INNER JOIN porque queremos incluir solo los registros que tienen relación en ambas tablas.
 
 -- 3. WHERE:
--- Filtramos los resultados para que solo incluyan los pedidos cuya fecha esté dentro del rango especificado (@fechaInicio y @fechaFin). Esto asegura que obtenemos únicamente los pedidos realizados en el rango de fechas especificado.
+-- Filtramos los resultados para que solo incluyan los pedidos cuya fecha esté dentro del rango especificado (@fechaInicio y @fechaFin).
 
 -- 4. GROUP BY:
 -- Agrupamos los resultados por el nombre del cliente (c.cliente) para contar la cantidad de pedidos realizados por cada cliente.
