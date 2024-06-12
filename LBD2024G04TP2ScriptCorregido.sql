@@ -160,10 +160,11 @@ WHERE
 GROUP BY 
     ut.patente
 ORDER BY 
-    cantidad_viajes DESC, ut.patente;
+    cantidad_viajes DESC, ut.patente
+LIMIT 10;
 
 -- 1. Variables de entrada:
--- Definimos variables @fechaInicio y @fechaFin.
+-- Definimos variables @fechaInicio y @fechaFin para establecer el rango de fechas.
 
 -- 2. FROM y JOIN:
 -- FROM Viajes: Comenzamos desde Viajes porque queremos listar los viajes realizados por las unidades de transporte en un rango de fechas.
@@ -177,6 +178,10 @@ ORDER BY
 
 -- 5. ORDER BY:
 -- Ordenamos los resultados por la cantidad de viajes (cantidad_viajes) en orden descendente (DESC) para que las unidades de transporte con más viajes aparezcan primero. Luego ordenamos por la patente (ut.patente) para diferenciar las unidades con la misma cantidad de viajes.
+
+-- 6. LIMIT:
+-- Limitamos el resultado a las primeras 10 unidades de transporte con más viajes para obtener un ranking.
+
 
 -- -----------------------------------------------------
 -- Consulta Nº5
@@ -318,38 +323,59 @@ LIMIT 10;
 -- 8. Crear una vista con la funcionalidad del apartado 4.
 -- -----------------------------------------------------
 
-CREATE VIEW RankingUnidadesTransporte2024 AS
+-- Crear la vista sin filtrar por el rango de fechas
+CREATE VIEW DatosUnidadesTransporte AS
 SELECT 
     ut.patente,
-    COUNT(v.idViaje) AS cantidad_viajes
+    v.fecha
 FROM 
     Viajes v
 INNER JOIN 
-    UnidadesTransporte ut ON v.idUnidadTransporte = ut.idUnidadTransporte
+    UnidadesTransporte ut ON v.idUnidadTransporte = ut.idUnidadTransporte;
+
+-- 1. SELECT:
+-- Seleccionamos la patente de la unidad de transporte (ut.patente) y la fecha del viaje (v.fecha).
+
+-- 2. FROM y JOIN:
+-- FROM Viajes: Comenzamos desde Viajes porque queremos listar los viajes realizados por las unidades de transporte.
+-- INNER JOIN UnidadesTransporte: Unimos Viajes con UnidadesTransporte usando idUnidadTransporte para obtener la información de las unidades de transporte. Utilizamos INNER JOIN porque queremos incluir solo los registros que tienen relación en ambas tablas.
+
+-- Llamar a la vista especificando el rango de fechas, el agrupamiento, la ordenación y el límite
+
+-- Variables para los parámetros de entrada (ejemplo)
+SET @fechaInicio = '2023-01-01';
+SET @fechaFin = '2024-12-31';
+
+SELECT 
+    patente,
+    COUNT(*) AS cantidad_viajes
+FROM 
+    DatosUnidadesTransporte
 WHERE 
-    v.fecha BETWEEN '2024-01-01' AND '2024-12-31'
+    fecha BETWEEN @fechaInicio AND @fechaFin
 GROUP BY 
-    ut.patente
+    patente
 ORDER BY 
-    cantidad_viajes DESC, ut.patente;
-    
-SELECT * FROM rankingunidadestransporte2024;
+    cantidad_viajes DESC, patente
+LIMIT 10;
 
--- 1. FROM y JOIN:
--- FROM Viajes: Comenzamos desde Viajes porque queremos contar los viajes realizados por las unidades de transporte.
--- INNER JOIN UnidadesTransporte: Unimos Viajes con UnidadesTransporte usando idUnidadTransporte para obtener la información de las unidades de transporte.
+-- 1. SELECT:
+-- Seleccionamos la patente (patente) y la cantidad total de viajes (COUNT(*)) de la vista DatosUnidadesTransporte.
 
--- 2. WHERE:
--- Filtramos los resultados para incluir solo los viajes cuya fecha esté dentro del rango especificado ('2024-01-01' y '2024-12-31').
+-- 2. FROM:
+-- FROM DatosUnidadesTransporte: Utilizamos la vista creada anteriormente que contiene la información necesaria sin filtrar por fechas.
 
--- 3. GROUP BY:
--- Agrupamos los resultados por la patente de la unidad de transporte (ut.patente) para contar la cantidad de viajes realizados por cada unidad.
+-- 3. WHERE:
+-- Filtramos los resultados para que solo incluyan los viajes cuya fecha esté dentro del rango especificado ('2024-01-01' y '2024-12-31').
 
--- 4. ORDER BY:
--- Ordenamos los resultados por la cantidad de viajes (cantidad_viajes) en orden descendente (DESC) para que las unidades de transporte con más viajes aparezcan primero. Luego ordenamos por la patente (ut.patente) para diferenciar las unidades con la misma cantidad de viajes.
+-- 4. GROUP BY:
+-- Agrupamos los resultados por la patente de la unidad de transporte (patente) para contar la cantidad total de viajes realizados por cada unidad.
 
--- Nota extra:
--- Esta vista considera los viajes realizados durante el año 2024.
+-- 5. ORDER BY:
+-- Ordenamos los resultados por la cantidad total de viajes (cantidad_viajes) en orden descendente (DESC) para que las unidades de transporte con más viajes aparezcan primero. Luego ordenamos por la patente (patente) para diferenciar las unidades con la misma cantidad de viajes.
+
+-- 6. LIMIT:
+-- Limitamos el resultado a las primeras 10 unidades de transporte con más viajes para obtener un ranking.
 
 -- -----------------------------------------------------
 -- Consulta Nº9
@@ -478,7 +504,7 @@ GROUP BY
 ORDER BY 
     stock_actual DESC, p.producto;
     
-SELECT * FROM stockactualporproducto;
+SELECT * FROM StockActualPorProducto;
 
 -- 1. FROM y JOIN:
 -- FROM Productos: Comenzamos desde Productos porque queremos listar el stock actual de cada producto.
@@ -512,7 +538,7 @@ GROUP BY
 ORDER BY 
     cantidad_vendida DESC, total_recaudado DESC, p.producto;
 
-SELECT * FROM productosmasvendidos;
+SELECT * FROM ProductosMasVendidos;
 
 -- 1. FROM y JOIN:
 -- FROM Productos: Comenzamos desde Productos porque queremos listar los productos más vendidos.
@@ -548,7 +574,7 @@ WHERE
 ORDER BY 
     pe.fecha, c.cliente;
     
-SELECT * FROM pedidosentregados;
+SELECT * FROM PedidosEntregados;
 
 -- 1. FROM y JOIN:
 -- FROM Pedidos: Comenzamos desde Pedidos porque queremos listar todos los pedidos entregados.
@@ -585,7 +611,7 @@ WHERE
 ORDER BY 
     pe.fecha, c.cliente;
     
-SELECT * FROM pedidosconviajesasignadospendientes;
+SELECT * FROM PedidosConViajesAsignadosPendientes;
 
 -- 1. FROM y JOIN:
 -- FROM Pedidos: Comenzamos desde Pedidos porque queremos listar todos los pedidos que tienen viajes asignados.
