@@ -379,8 +379,8 @@ SELECT @mensaje AS mensaje; -- Debería devolver "No se puede eliminar el client
 DELIMITER //
 
 CREATE PROCEDURE BuscarCliente(
-    IN p_idCliente INT,
-    OUT p_cliente VARCHAR(60),
+    IN p_cliente VARCHAR(60),
+    OUT p_idCliente INT,
     OUT p_cuil CHAR(11),
     OUT p_email VARCHAR(120),
     OUT p_direccion VARCHAR(120),
@@ -396,26 +396,26 @@ BEGIN
     END;
 
     -- Inicializar los parámetros de salida
-    SET p_cliente = NULL;
+    SET p_idCliente = NULL;
     SET p_cuil = NULL;
     SET p_email = NULL;
     SET p_direccion = NULL;
     SET p_telefono = NULL;
     SET p_estado = NULL;
 
-    -- Validación: Verificar si el ID de cliente es válido
-    IF p_idCliente <= 0 THEN
-        SET p_mensaje = 'ID de cliente no válido.';
+    -- Validación: Verificar si el nombre de cliente es válido
+    IF p_cliente IS NULL OR p_cliente = '' THEN
+        SET p_mensaje = 'Nombre de cliente no válido.';
     ELSE
         -- Validación: Verificar si el cliente existe
-        IF NOT EXISTS (SELECT 1 FROM Clientes WHERE idCliente = p_idCliente) THEN
+        IF NOT EXISTS (SELECT 1 FROM Clientes WHERE cliente = p_cliente) THEN
             SET p_mensaje = 'Cliente no encontrado.';
         ELSE
             -- Recuperar la información del cliente
-            SELECT cliente, cuil, email, direccion, telefono, estado
-            INTO p_cliente, p_cuil, p_email, p_direccion, p_telefono, p_estado
+            SELECT idCliente, cuil, email, direccion, telefono, estado
+            INTO p_idCliente, p_cuil, p_email, p_direccion, p_telefono, p_estado
             FROM Clientes
-            WHERE idCliente = p_idCliente;
+            WHERE cliente = p_cliente;
 
             -- Verificar si el cliente está inactivo
             IF p_estado = 'B' THEN
@@ -432,24 +432,25 @@ DELIMITER ;
 -- Sentencias de llamada al procedimiento creado.
 -- -----------------------------------------------------
 -- Caso de éxito: Cliente existe
-CALL BuscarCliente(5, @cliente, @cuil, @email, @direccion, @telefono, @estado, @mensaje);
-SELECT @cliente AS cliente, @cuil AS cuil, @email AS email, @direccion AS direccion, @telefono AS telefono, @estado AS estado, @mensaje AS mensaje;
+CALL BuscarCliente('Distribuidora La Colina', @idCliente, @cuil, @email, @direccion, @telefono, @estado, @mensaje);
+SELECT @idCliente AS idCliente, @cuil AS cuil, @email AS email, @direccion AS direccion, @telefono AS telefono, @estado AS estado, @mensaje AS mensaje;
 -- Debería devolver los datos del cliente y el mensaje "Cliente encontrado exitosamente."
 
 -- Error: Cliente no existe
-CALL BuscarCliente(999, @cliente, @cuil, @email, @direccion, @telefono, @estado, @mensaje);
-SELECT @cliente AS cliente, @cuil AS cuil, @email AS email, @direccion AS direccion, @telefono AS telefono, @estado AS estado, @mensaje AS mensaje;
+CALL BuscarCliente('Nombre Inexistente', @idCliente, @cuil, @email, @direccion, @telefono, @estado, @mensaje);
+SELECT @idCliente AS idCliente, @cuil AS cuil, @email AS email, @direccion AS direccion, @telefono AS telefono, @estado AS estado, @mensaje AS mensaje;
 -- Debería devolver "Cliente no encontrado."
 
--- Error: ID de cliente no válido (negativo)
-CALL BuscarCliente(-1, @cliente, @cuil, @email, @direccion, @telefono, @estado, @mensaje);
-SELECT @cliente AS cliente, @cuil AS cuil, @email AS email, @direccion AS direccion, @telefono AS telefono, @estado AS estado, @mensaje AS mensaje;
--- Debería devolver "ID de cliente no válido."
+-- Error: Nombre de cliente no válido (cadena vacía)
+CALL BuscarCliente('', @idCliente, @cuil, @email, @direccion, @telefono, @estado, @mensaje);
+SELECT @idCliente AS idCliente, @cuil AS cuil, @email AS email, @direccion AS direccion, @telefono AS telefono, @estado AS estado, @mensaje AS mensaje;
+-- Debería devolver "Nombre de cliente no válido."
 
 -- Error: Cliente inactivo 
-CALL BuscarCliente(4, @cliente, @cuil, @email, @direccion, @telefono, @estado, @mensaje);
-SELECT @cliente AS cliente, @cuil AS cuil, @email AS email, @direccion AS direccion, @telefono AS telefono, @estado AS estado, @mensaje AS mensaje;
--- Debería devolver los datos del cliente y el mensaje "Cliente encontrado exitosamente.", pero mostrando el estado 'B'
+CALL BuscarCliente('Mayorista La Perla', @idCliente, @cuil, @email, @direccion, @telefono, @estado, @mensaje);
+SELECT @idCliente AS idCliente, @cuil AS cuil, @email AS email, @direccion AS direccion, @telefono AS telefono, @estado AS estado, @mensaje AS mensaje;
+-- Debería devolver los datos del cliente y el mensaje "Cliente encontrado pero está inactivo.", pero mostrando el estado 'B'
+
 
 -- -----------------------------------------------------
 -- Dado un producto, realizar un listado de sus entradas entre un rango de fechas,
