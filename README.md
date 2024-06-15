@@ -1,6 +1,6 @@
 # Finales de Laboratorio de Bases de Datos
 
-En este repositorio se guardan todos los examenes finales de Laboratorio de Bases de Datos desarrollados .Materia correspondiente al quinto año de la carrera Ingenieria en Computacion dictada en la UNT.
+En este repositorio se guardan todos los examenes finales desarrollados de Laboratorio de Bases de Datos. Materia correspondiente al quinto año de la carrera Ingenieria en Computacion dictada en la UNT.
 
 ## Construidos con 🛠️
 
