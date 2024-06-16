@@ -14,126 +14,110 @@
 -- ----------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------
 
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-
-CREATE SCHEMA IF NOT EXISTS `Parcial2022` DEFAULT CHARACTER SET utf8 ;
-
-CREATE TABLE IF NOT EXISTS `Parcial2022`.`Autores` (
-  `idAutor` VARCHAR(11) NOT NULL,
-  `apellido` VARCHAR(40) NOT NULL,
-  `nombre` VARCHAR(20) NOT NULL,
-  `telefono` CHAR(12) NOT NULL DEFAULT 'UNKNOWN',
-  `domicilio` VARCHAR(40) NULL DEFAULT NULL,
-  `ciudad` VARCHAR(20) NULL DEFAULT NULL,
-  `estado` CHAR(2) NULL DEFAULT NULL,
-  `codigoPostal` CHAR(5) NULL DEFAULT NULL,
-  PRIMARY KEY (`idAutor`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-CREATE TABLE IF NOT EXISTS `Parcial2022`.`Detalles` (
-  `idDetalle` INT(11) NOT NULL AUTO_INCREMENT,
-  `codigoVenta` VARCHAR(20) NOT NULL,
-  `idTitulo` VARCHAR(6) NOT NULL,
-  `cantidad` SMALLINT(6) NOT NULL CHECK (`cantidad` > 0),
-  PRIMARY KEY (`idDetalle`),
-  INDEX `fk_Detalles_Titulos1_idx` (`idTitulo` ASC) VISIBLE,
-  INDEX `fk_Detalles_Ventas1_idx` (`codigoVenta` ASC) VISIBLE,
-  CONSTRAINT `fk_Detalles_Titulos1`
-    FOREIGN KEY (`idTitulo`)
-    REFERENCES `Parcial2022`.`Titulos` (`idTitulo`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Detalles_Ventas1`
-    FOREIGN KEY (`codigoVenta`)
-    REFERENCES `Parcial2022`.`Ventas` (`codigoVenta`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-CREATE TABLE IF NOT EXISTS `Parcial2022`.`Ventas` (
-  `codigoVenta` VARCHAR(20) NOT NULL,
-  `idTienda` CHAR(4) NOT NULL,
-  `fecha` DATETIME NOT NULL,
-  `tipo` VARCHAR(12) NOT NULL,
-  PRIMARY KEY (`codigoVenta`),
-  INDEX `fk_Ventas_Tiendas1_idx` (`idTienda` ASC) VISIBLE,
-  CONSTRAINT `fk_Ventas_Tiendas1`
-    FOREIGN KEY (`idTienda`)
-    REFERENCES `Parcial2022`.`Tiendas` (`idTienda`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-CREATE TABLE IF NOT EXISTS `Parcial2022`.`Editoriales` (
-  `idEditorial` CHAR(4) NOT NULL,
-  `nombre` VARCHAR(40) NOT NULL,
-  `ciudad` VARCHAR(20) NULL DEFAULT NULL,
-  `estado` CHAR(2) NULL DEFAULT NULL,
-  `pais` VARCHAR(30) NOT NULL DEFAULT 'USA',
-  PRIMARY KEY (`idEditorial`),
-  UNIQUE INDEX `nombre_UNIQUE` (`nombre` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-CREATE TABLE IF NOT EXISTS `Parcial2022`.`Tiendas` (
-  `idTienda` CHAR(4) NOT NULL,
-  `nombre` VARCHAR(40) NOT NULL,
-  `domicilio` VARCHAR(40) NULL DEFAULT NULL,
-  `ciudad` VARCHAR(20) NULL DEFAULT NULL,
-  `estado` CHAR(2) NULL DEFAULT NULL,
-  `codigoPostal` CHAR(5) NULL DEFAULT NULL,
-  PRIMARY KEY (`idTienda`),
-  UNIQUE INDEX `nombre_UNIQUE` (`nombre` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-CREATE TABLE IF NOT EXISTS `Parcial2022`.`TitulosDelAutor` (
-  `idAutor` VARCHAR(11) NOT NULL,
-  `idTitulo` VARCHAR(6) NOT NULL,
-  PRIMARY KEY (`idAutor`, `idTitulo`),
-  INDEX `fk_TitulosDelAutor_Titulos1_idx` (`idTitulo` ASC) VISIBLE,
-  CONSTRAINT `fk_TitulosDelAutor_Autores`
-    FOREIGN KEY (`idAutor`)
-    REFERENCES `Parcial2022`.`Autores` (`idAutor`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_TitulosDelAutor_Titulos1`
-    FOREIGN KEY (`idTitulo`)
-    REFERENCES `Parcial2022`.`Titulos` (`idTitulo`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-CREATE TABLE IF NOT EXISTS `Parcial2022`.`Titulos` (
-  `idTitulo` VARCHAR(6) NOT NULL,
-  `titulo` VARCHAR(80) NOT NULL,
-  `genero` CHAR(12) NOT NULL DEFAULT 'UNDECIDED',
-  `idEditorial` CHAR(4) NOT NULL,
-  `precio` DECIMAL(8,2) NULL DEFAULT NULL CHECK (`precio` > 0),
-  `sinopsis` VARCHAR(200) NULL DEFAULT NULL,
-  `fechaPublicacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`idTitulo`),
-  INDEX `fk_Titulos_Editoriales1_idx` (`idEditorial` ASC) VISIBLE,
-  CONSTRAINT `fk_Titulos_Editoriales1`
-    FOREIGN KEY (`idEditorial`)
-    REFERENCES `Parcial2022`.`Editoriales` (`idEditorial`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
+--
+-- ER/Studio Data Architect SQL Code Generation
+-- Project :      DATA MODEL
+--
+-- Date Created : Sunday, June 16, 2024 03:05:56
+-- Target DBMS : MySQL 8.x
+--
 
 
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
+DROP DATABASE IF EXISTS Parcial2022;
+CREATE DATABASE Parcial2022;
 USE Parcial2022;
+
+CREATE TABLE Autores(
+    idAutor         VARCHAR(11)    NOT NULL,
+    apellido        VARCHAR(40)    NOT NULL,
+    nombre          VARCHAR(20)    NOT NULL,
+    telefono        CHAR(12)       DEFAULT 'UNKNOWN' NOT NULL,
+    domicilio       VARCHAR(40),
+    ciudad          VARCHAR(20),
+    estado          CHAR(2),
+    codigoPostal    CHAR(5),
+    PRIMARY KEY (idAutor)
+)ENGINE=INNODB
+;
+
+CREATE TABLE Editoriales(
+    idEditorial    CHAR(4)        NOT NULL,
+    nombre         VARCHAR(40)    NOT NULL,
+    ciudad         VARCHAR(20),
+    estado         CHAR(2),
+    pais           VARCHAR(30)    DEFAULT 'USA' NOT NULL,
+    PRIMARY KEY (idEditorial),
+    UNIQUE INDEX UI_nombreEditorial(nombre)
+)ENGINE=INNODB
+;
+
+CREATE TABLE Titulos(
+    idTitulo            VARCHAR(6)       NOT NULL,
+    titulo              VARCHAR(80)      NOT NULL,
+    genero              CHAR(12)         DEFAULT 'UNDECIDED' NOT NULL,
+    idEditorial         CHAR(4)          NOT NULL,
+    precio              DECIMAL(8, 2)    CHECK (precio > 0),
+    sinopsis            VARCHAR(200),
+    fechaPublicacion    DATETIME         DEFAULT current_timestamp NOT NULL,
+    PRIMARY KEY (idTitulo),
+    INDEX ix_idEditorial(idEditorial),
+    FOREIGN KEY (idEditorial)
+    REFERENCES Editoriales(idEditorial)
+)ENGINE=INNODB
+;
+
+CREATE TABLE Tiendas(
+    idTienda        CHAR(4)        NOT NULL,
+    nombre          VARCHAR(40)    NOT NULL,
+    domicilio       VARCHAR(40)    NOT NULL,
+    ciudad          VARCHAR(20),
+    estado          CHAR(2),
+    codigoPostal    CHAR(5),
+    PRIMARY KEY (idTienda),
+    UNIQUE INDEX UI_nombreTienda(nombre)
+)ENGINE=INNODB
+;
+
+CREATE TABLE Ventas(
+    codigoVenta    VARCHAR(20)    NOT NULL,
+    idTienda       CHAR(4)        NOT NULL,
+    fecha          DATETIME       NOT NULL,
+    tipo           VARCHAR(12)    NOT NULL,
+    PRIMARY KEY (codigoVenta),
+    INDEX IX_idTienda(idTienda),
+    FOREIGN KEY (idTienda)
+    REFERENCES Tiendas(idTienda)
+)ENGINE=INNODB
+;
+
+CREATE TABLE Detalles(
+    idDetalle      INT            AUTO_INCREMENT,
+    codigoVenta    VARCHAR(20)    NOT NULL,
+    idTitulo       VARCHAR(6)     NOT NULL,
+    cantidad       SMALLINT       NOT NULL CHECK (cantidad > 0),
+    PRIMARY KEY (idDetalle),
+    INDEX IX_idTitulo(idTitulo),
+    INDEX IX_codigoVenta(codigoVenta),
+    FOREIGN KEY (idTitulo)
+    REFERENCES Titulos(idTitulo),
+    FOREIGN KEY (codigoVenta)
+    REFERENCES Ventas(codigoVenta)
+)ENGINE=INNODB
+;
+
+CREATE TABLE TitulosDelAutor(
+    idAutor     VARCHAR(11)    NOT NULL,
+    idTitulo    VARCHAR(6)     NOT NULL,
+    PRIMARY KEY (idAutor, idTitulo),
+    INDEX IX_idAutor(idAutor),
+    INDEX IX_idTitulo(idTitulo),
+    FOREIGN KEY (idAutor)
+    REFERENCES Autores(idAutor),
+    FOREIGN KEY (idTitulo)
+    REFERENCES Titulos(idTitulo)
+)ENGINE=INNODB
+;
+
 
 -- ----------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------
