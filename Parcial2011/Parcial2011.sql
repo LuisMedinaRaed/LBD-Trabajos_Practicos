@@ -14,139 +14,100 @@
 -- ----------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------
 
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+DROP DATABASE IF EXISTS Parcial2011;
+CREATE DATABASE Parcial2011;
+USE Parcial2011;
 
--- -----------------------------------------------------
--- Schema Parcial2011
--- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `Parcial2011` ;
+--
+-- ER/Studio Data Architect SQL Code Generation
+-- Project :      DATA MODEL
+--
+-- Date Created : Sunday, June 16, 2024 02:34:51
+-- Target DBMS : MySQL 8.x
+--
 
--- -----------------------------------------------------
--- Schema Parcial2011
--- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `Parcial2011` DEFAULT CHARACTER SET utf8 ;
-USE `Parcial2011` ;
+CREATE TABLE Artistas(
+    IdArtista       INT            NOT NULL,
+    Apellidos       VARCHAR(30)    NOT NULL,
+    Nombres         VARCHAR(30)    NOT NULL,
+    Nacionalidad    VARCHAR(30)    NOT NULL,
+    PRIMARY KEY (IdArtista),
+    INDEX IX_ApellidosNombres(Apellidos, Nombres)
+)ENGINE=INNODB
+;
 
--- -----------------------------------------------------
--- Table `Parcial2011`.`Artistas`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Parcial2011`.`Artistas` (
-  `IdArtista` INT NOT NULL,
-  `Apellidos` VARCHAR(30) NOT NULL,
-  `Nombres` VARCHAR(30) NOT NULL,
-  `Nacionalidad` VARCHAR(30) NOT NULL,
-  PRIMARY KEY (`IdArtista`),
-  INDEX `IX_ApellidosNombres` (`Apellidos` ASC, `Nombres` ASC) VISIBLE)
-ENGINE = InnoDB;
+CREATE TABLE Estilos(
+    IdEstilo    INT            NOT NULL,
+    Estilo      VARCHAR(30)    NOT NULL,
+    PRIMARY KEY (IdEstilo),
+    UNIQUE INDEX UI_Estilo(Estilo)
+)ENGINE=INNODB
+;
 
+CREATE TABLE Exposiciones(
+    IdExposicion         INT             NOT NULL,
+    Titulo               VARCHAR(50)     NOT NULL,
+    Descripcion          VARCHAR(200),
+    FechaInauguracion    DATE            NOT NULL,
+    FechaClausura        DATE,
+    PRIMARY KEY (IdExposicion),
+    INDEX IX_TituloExposiciones(Titulo),
+    CHECK (FechaInauguracion < FechaClausura)
+)ENGINE=INNODB
+;
 
--- -----------------------------------------------------
--- Table `Parcial2011`.`Estilos`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Parcial2011`.`Estilos` (
-  `IdEstilo` INT NOT NULL,
-  `Estilo` VARCHAR(30) NOT NULL,
-  PRIMARY KEY (`IdEstilo`),
-  UNIQUE INDEX `Estilo_UNIQUE` (`Estilo` ASC) VISIBLE)
-ENGINE = InnoDB;
+CREATE TABLE Obras(
+    IdObra          INT               NOT NULL,
+    IdArtista       INT               NOT NULL,
+    IdEstilo        INT               NOT NULL,
+    Titulo          VARCHAR(60)       NOT NULL,
+    Fecha           DATE              NOT NULL,
+    PrecioSalida    DECIMAL(12, 2)    NOT NULL CHECK (PrecioSalida > 0),
+    PRIMARY KEY (IdObra, IdArtista),
+    INDEX IX_IdArtista(IdArtista),
+    INDEX IX_IdEstilo(IdEstilo),
+    UNIQUE INDEX UI_IdObra(IdObra),
+    INDEX IX_TituloObras(Titulo),
+    INDEX IX_FechaObras(Fecha),
+    FOREIGN KEY (IdArtista)
+    REFERENCES Artistas(IdArtista),
+    FOREIGN KEY (IdEstilo)
+    REFERENCES Estilos(IdEstilo)
+)ENGINE=INNODB
+;
 
+CREATE TABLE Muestras(
+    IdObra          INT    NOT NULL,
+    IdArtista       INT    NOT NULL,
+    IdExposicion    INT    NOT NULL,
+    PRIMARY KEY (IdObra, IdArtista, IdExposicion),
+    INDEX IX_IdExposicion(IdExposicion),
+    INDEX IX_IdObraArtista(IdObra, IdArtista),
+    FOREIGN KEY (IdExposicion)
+    REFERENCES Exposiciones(IdExposicion),
+    FOREIGN KEY (IdObra, IdArtista)
+    REFERENCES Obras(IdObra, IdArtista)
+)ENGINE=INNODB
+;
 
--- -----------------------------------------------------
--- Table `Parcial2011`.`Obras`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Parcial2011`.`Obras` (
-  `IdObra` INT NOT NULL,
-  `IdArtista` INT NOT NULL,
-  `IdEstilo` INT NOT NULL,
-  `Titulo` VARCHAR(60) NOT NULL,
-  `Fecha` DATE NOT NULL,
-  `PrecioSalida` DECIMAL(12,2) NOT NULL CHECK (PrecioSalida > 0),
-  PRIMARY KEY (`IdObra`, `IdArtista`),
-  INDEX `fk_Obras_Artistas_idx` (`IdArtista` ASC) VISIBLE,
-  INDEX `fk_Obras_Estilos1_idx` (`IdEstilo` ASC) VISIBLE,
-  UNIQUE INDEX `IdObra_UNIQUE` (`IdObra` ASC) VISIBLE,
-  INDEX `IX_titulo` (`Titulo` ASC) VISIBLE,
-  INDEX `IX_fecha` (`Fecha` ASC) VISIBLE,
-  CONSTRAINT `fk_Obras_Artistas`
-    FOREIGN KEY (`IdArtista`)
-    REFERENCES `Parcial2011`.`Artistas` (`IdArtista`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Obras_Estilos1`
-    FOREIGN KEY (`IdEstilo`)
-    REFERENCES `Parcial2011`.`Estilos` (`IdEstilo`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `Parcial2011`.`Exposiciones`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Parcial2011`.`Exposiciones` (
-  `IdExposicion` INT NOT NULL,
-  `Titulo` VARCHAR(50) NOT NULL,
-  `Descripcion` VARCHAR(200) NULL,
-  `FechaInauguracion` DATE NOT NULL,
-  `FechaClausura` DATE NULL,
-  PRIMARY KEY (`IdExposicion`),
-  INDEX `IX_titulo` (`Titulo` ASC) VISIBLE,
-  CONSTRAINT `check_dates` CHECK (FechaInauguracion < FechaClausura))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `Parcial2011`.`Muestras`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Parcial2011`.`Muestras` (
-  `IdObra` INT NOT NULL,
-  `IdArtista` INT NOT NULL,
-  `IdExposicion` INT NOT NULL,
-  PRIMARY KEY (`IdObra`, `IdArtista`, `IdExposicion`),
-  INDEX `fk_Muestras_Exposiciones1_idx` (`IdExposicion` ASC) VISIBLE,
-  CONSTRAINT `fk_Muestras_Obras1`
-    FOREIGN KEY (`IdObra` , `IdArtista`)
-    REFERENCES `Parcial2011`.`Obras` (`IdObra` , `IdArtista`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Muestras_Exposiciones1`
-    FOREIGN KEY (`IdExposicion`)
-    REFERENCES `Parcial2011`.`Exposiciones` (`IdExposicion`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `Parcial2011`.`Ofertas`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Parcial2011`.`Ofertas` (
-  `IdOferta` CHAR(10) NOT NULL,
-  `IdObra` INT NOT NULL,
-  `IdArtista` INT NOT NULL,
-  `IdExposicion` INT NOT NULL,
-  `Fecha` DATE NULL,
-  `Importe` DECIMAL(12,2) NOT NULL CHECK (Importe > 0),
-  `Ofertante` VARCHAR(100) NOT NULL,
-  `Vendida` CHAR(1) NOT NULL CHECK (Vendida IN ('S', 'N')),
-  PRIMARY KEY (`IdOferta`, `IdObra`, `IdArtista`, `IdExposicion`),
-  INDEX `fk_Ofertas_Muestras1_idx` (`IdObra` ASC, `IdArtista` ASC, `IdExposicion` ASC) INVISIBLE,
-  UNIQUE INDEX `IdOferta_UNIQUE` (`IdOferta` ASC) VISIBLE,
-  INDEX `IX_fecha` (`Fecha` ASC) VISIBLE,
-  INDEX `IX_ofertante` (`Ofertante` ASC) VISIBLE,
-  CONSTRAINT `fk_Ofertas_Muestras1`
-    FOREIGN KEY (`IdObra` , `IdArtista` , `IdExposicion`)
-    REFERENCES `Parcial2011`.`Muestras` (`IdObra` , `IdArtista` , `IdExposicion`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+CREATE TABLE Ofertas(
+    IdOferta        CHAR(10)          NOT NULL,
+    IdObra          INT               NOT NULL,
+    IdArtista       INT               NOT NULL,
+    IdExposicion    INT               NOT NULL,
+    Fecha           DATE,
+    Importe         DECIMAL(12, 2)    NOT NULL CHECK (Importe > 0),
+    Ofertante       VARCHAR(100)      NOT NULL,
+    Vendida         CHAR(1)           NOT NULL CHECK (Vendida IN ('S', 'N')),
+    PRIMARY KEY (IdOferta, IdObra, IdArtista, IdExposicion),
+    UNIQUE INDEX UI_IdOferta(IdOferta),
+    INDEX IX_IdObraArtistaExposicion(IdObra, IdArtista, IdExposicion),
+    INDEX IX_FechaOfertas(Fecha),
+    INDEX IX_Ofertante(Ofertante),
+    FOREIGN KEY (IdObra, IdArtista, IdExposicion)
+    REFERENCES Muestras(IdObra, IdArtista, IdExposicion)
+)ENGINE=INNODB
+;
 
 
 -- ----------------------------------------------------------------------------------------------------------
