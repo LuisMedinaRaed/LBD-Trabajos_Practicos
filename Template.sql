@@ -1,11 +1,10 @@
 -- ------------------------------------------------------------------------------------------------------- --
 -- Año: 2024
 -- Alumno: Medina Raed, Luis Eugenio
--- Plataforma (SO + Versión): Windows 11
--- Motor y Versión: MySQL Server 8.0.28 (Community Edition)
+-- Plataforma (SO + Versión): Windows 11 Home Single Language 23H2 - 22631.3737
+-- Motor y Versión: MySQL Server 8.0.37
 -- GitHub Usuarios: LuisMedinaRaed
 -- Examen Final Laboratorio de Bases de Datos 2024
-
 -- ------------------------------------------------------------------------------------------------------- --
 
 -- ----------------------------------------------------------------------------------------------------------
